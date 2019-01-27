@@ -6,6 +6,7 @@
   "main": "functions/__main__.js",
   "dependencies": {
     "axios": "^0.18.0",
+    "brain.js": "^1.6.1",
     "mongoose": "^5.4.7",
     "uuid": "^3.3.2"
   },
