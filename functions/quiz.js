@@ -39,9 +39,5 @@ module.exports = async (id="", lang="fr", list="", context) => {
         }
     }
 
-    return {
-        word: toSend.word,
-        translated: response.data[0].translations[0].text,
-        count: toSend.count
-    }
+    return toSend;
 };  
