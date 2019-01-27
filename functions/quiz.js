@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 const lib = require('lib');
 var axios = require('axios');
 let db = null;
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require('uuid/v4');  
 
 let UserSchema = new mongoose.Schema({
     email: String,
     user_id: String,
     words: Array,
-});
+    lang: String,
+    params: Array
+  });
 
 var UserModel = mongoose.model('UserModel', UserSchema);
 
@@ -27,16 +29,21 @@ module.exports = async (id="", lang="fr", list="", context) => {
             }
         } 
     }
-
+    var counter = 0;
     if (amountFound >= 5){
         for (var i=0; i<doc.words.length; i++){
             if (doc.words[i].count >= 3 && doc.words[i].lang == lang){
-                toSend["Q" + (i + 1)] = {
+                toSend["Q" + (counter + 1)] = {
                     word: doc.words[i].word,
                     correct: doc.words[i].translated
                 };
+                counter += 1;
             }
+            if(counter > 4){break;}
         }
+    }
+    else{
+        return false;
     }
 
     return toSend;

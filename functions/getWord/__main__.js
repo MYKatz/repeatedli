@@ -31,7 +31,8 @@ let UserSchema = new mongoose.Schema({
   email: String,
   user_id: String,
   words: Array,
-  lang: String
+  lang: String,
+  params: Array
 });
 
 var UserModel = mongoose.model('UserModel', UserSchema);
@@ -45,10 +46,9 @@ module.exports = async (id="", lang="fr", list="", context) => {
 
   var doc = await UserModel.findOne({user_id: id});
   var toSend = null
-
+  
   // toSend is a 'word object' = {word: "word in english", lang: "2-letter lang code", lastseen: date, count: int}
-
-  if(doc.words.length > 0){
+  if(doc && doc.words.length > 0){
     var now = new Date();
     for(var i=0; i< doc.words.length; i++){
       //iterates through list, finding first doc that should be displayed (if any)... should be O(n) in worst case
@@ -67,8 +67,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
     }
     
   }
-
-  const key = "22e18d4f78fb44148a965d19245cf1e8"
+  const key = "22e18d4f78fb44148a965d19245cf1e8";
 
   if(!key){
     return "No key, update environment variables"
@@ -96,7 +95,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
       lastseen: new Date(),
       count: 1,
       translated: "",
-      params: [mutate(p[0]), mutate(p[1]), mutate(p[2])],
+      params: [mutate(p['0']), mutate(p['1']), mutate(p['2'])],
     }
   }
 
@@ -122,8 +121,8 @@ module.exports = async (id="", lang="fr", list="", context) => {
 
   const response = await axios(reqOpts);
 
-  toSend.translated = response.data[0].translations[0].text;
-  
+  toSend.translated = await response.data[0].translations[0].text;
+
   doc.words.push(toSend);
   await doc.save();
   

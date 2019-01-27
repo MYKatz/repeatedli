@@ -1,9 +1,26 @@
-var brain = require('brain.js')
+const mongoose = require('mongoose');
+let db = null;
+var brain = require('brain.js');
+
+let UserSchema = new mongoose.Schema({
+  email: String,
+  user_id: String,
+  words: Array,
+  lang: String,
+  params: Array
+});
+
+var UserModel = mongoose.model('UserModel', UserSchema);
+
 
 /**
 * @returns {any}
 */
 module.exports = async (context) => {
+  db = db || await(mongoose.connect('mongodb://repeatedli:9FFKUmBGMCEqfF7msfbRnOpyJRuwk3FiVVtusC2KosERMtS5YBuhdQtSd2TN5oBeI6vRYk9TLz3RmC3wBGBDRA%3D%3D@repeatedli.documents.azure.com:10255/?ssl=true'));
+
+  //var doc = await UserModel.findOne({user_id: id});
+
   const config = {
     binaryThresh: 0.5,
     hiddenLayers: [5],     // array of ints for the sizes of the hidden layers in the network
