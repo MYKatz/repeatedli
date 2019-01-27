@@ -1,19 +1,24 @@
 var axios = require('axios');
 const uuidv4 = require('uuid/v4');
 var mongoose = require('mongoose');
+const lib = require('lib');
 let db = null
 
 function daysbetween(date1, date2){
-  var one_day=1000*60*60*24;
   var date1_ms = date1.getTime();
   var date2_ms = date2.getTime();
   var difference_ms = date2_ms - date1_ms;
-  return difference_ms 
+  return difference_ms /(1000*60); //convert to minutes
+  // returns difference in seconds
 }
 
-function shouldSendPrevious(diff, step){
+function mutate(p){
+  return p + (Math.floor(Math.random() * 30) - 15)/100
+}
+
+function shouldSendPrevious(diff, step, params){
   //relates the time difference and the current repetition to determine if should be spaced ... diff is in ms
-  if(diff > 30000*step){
+  if(diff > (params[0]*10 * (params[1]*10)**step + (params[2])*10)){
     // naive implementation - initial spacing is 30 secs, then additional 30 secs for each subsequent step
     return true
   }
@@ -46,7 +51,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
     var now = new Date();
     for(var i=0; i< doc.words.length; i++){
       //iterates through list, finding first doc that should be displayed (if any)... should be O(n) in worst case
-      if(doc.lang == doc.words[i].lang && shouldSendPrevious(daysbetween(doc.words[i].lastseen, now),doc.words[i].count)){
+      if(shouldSendPrevious(daysbetween(doc.words[i].lastseen, now), doc.words[i].count, doc.words[i].params)){
         var toSend = doc.words[i];
         toSend.count += 1;
         toSend.lastseen = new Date();
@@ -54,6 +59,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
         newArray.splice(i, 1);
         newArray.push(toSend);
         doc.words = newArray.slice();
+        doc.markModified("words");
         await doc.save();
         break;
       }
@@ -82,11 +88,13 @@ module.exports = async (id="", lang="fr", list="", context) => {
   }
 
   if(!toSend){
+    var p = await lib[`${context.service.identifier}.nnet.makeParams`]();
     toSend = {
       word: word,
       lang: lang,
       lastseen: new Date(),
-      count: 1
+      count: 1,
+      params: [mutate(p[0]), mutate(p[1]), mutate(p[2])],
     }
     doc.words.push(toSend);
     await doc.save();
@@ -117,5 +125,6 @@ module.exports = async (id="", lang="fr", list="", context) => {
   return {
     word: toSend.word,
     translated: response.data[0].translations[0].text,
+    count: toSend.count
   }
 };
