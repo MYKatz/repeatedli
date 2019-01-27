@@ -31,6 +31,7 @@ let UserSchema = new mongoose.Schema({
   email: String,
   user_id: String,
   words: Array,
+  lang: String
 });
 
 var UserModel = mongoose.model('UserModel', UserSchema);
@@ -91,13 +92,12 @@ module.exports = async (id="", lang="fr", list="", context) => {
     var p = await lib[`${context.service.identifier}.nnet.makeParams`]();
     toSend = {
       word: word,
-      lang: lang,
+      lang: doc.lang,
       lastseen: new Date(),
       count: 1,
+      translated: "",
       params: [mutate(p[0]), mutate(p[1]), mutate(p[2])],
     }
-    doc.words.push(toSend);
-    await doc.save();
   }
 
 
@@ -120,8 +120,13 @@ module.exports = async (id="", lang="fr", list="", context) => {
     },
   }
 
-  const response = await axios(reqOpts)
+  const response = await axios(reqOpts);
 
+  toSend.translated = response.data[0].translations[0].text;
+  
+  doc.words.push(toSend);
+  await doc.save();
+  
   return {
     word: toSend.word,
     translated: response.data[0].translations[0].text,
