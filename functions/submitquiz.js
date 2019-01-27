@@ -23,12 +23,11 @@ module.exports = async (obj="", id="", context) => {
   var words = doc.words.slice();
   var lim = JSON.parse(obj);
   for(var i=0; i < lim["words"].length; i++){
-    
     if(lim["corrects"][i]){
-      for(var k=0; k < words.lenth; k++){
+      for(var k=0; k < words.length; k++){
         if(words[k].word == lim.words[i]){
-          return JSON.stringify({input: [1], output: words[k].params.slice()});
-          words.splice(k,1)
+          prm.push({input: [1], output: words[k].params.slice()});
+          words.splice(k,1);
           break;
         }
       }
@@ -37,16 +36,16 @@ module.exports = async (obj="", id="", context) => {
       for(var j=0; j < words.length; j++){
         if(words[j].word == lim.words[i]){
           prm.push({input: [0], output: words[j].params.slice()});
-          words.splice(j,1)
+          words.splice(j,1);
           break;
         }
       }
     }
   }
-  return JSON.stringify(prm);
   doc.params = prm;
   doc.words = words;
   doc.markModified("params");
   doc.markModified("words");
   var toR = await doc.save(); 
+  return true;
 };

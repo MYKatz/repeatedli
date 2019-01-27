@@ -10,13 +10,13 @@ let UserSchema = new mongoose.Schema({
   params: Array
 });
 
-var UserModel = mongoose.model('UserModel', UserSchema);
+//var UserModel = mongoose.model('UserModel', UserSchema);
 
 
 /**
 * @returns {any}
 */
-module.exports = async (context) => {
+module.exports = async (id="", params=[], context) => {
   db = db || await(mongoose.connect('mongodb://repeatedli:9FFKUmBGMCEqfF7msfbRnOpyJRuwk3FiVVtusC2KosERMtS5YBuhdQtSd2TN5oBeI6vRYk9TLz3RmC3wBGBDRA%3D%3D@repeatedli.documents.azure.com:10255/?ssl=true'));
 
   //var doc = await UserModel.findOne({user_id: id});
@@ -39,7 +39,7 @@ module.exports = async (context) => {
     {input: [0], output: [.9,.9,.9]},
     {input: [0], output: [.9,.8,.7]},
     {input: [1], output: [.3,.3,.2]},
-    ]);
+    ].concat(params));
 
 
   return net.run([1]);

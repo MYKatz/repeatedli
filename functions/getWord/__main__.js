@@ -88,7 +88,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
   }
 
   if(!toSend){
-    var p = await lib[`${context.service.identifier}.nnet.makeParams`]();
+    var p = await lib[`${context.service.identifier}.nnet`](id,doc.params);
     toSend = {
       word: word,
       lang: doc.lang,
