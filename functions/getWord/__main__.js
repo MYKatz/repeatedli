@@ -52,7 +52,7 @@ module.exports = async (id="", lang="fr", list="", context) => {
     var now = new Date();
     for(var i=0; i< doc.words.length; i++){
       //iterates through list, finding first doc that should be displayed (if any)... should be O(n) in worst case
-      if(shouldSendPrevious(daysbetween(doc.words[i].lastseen, now), doc.words[i].count, doc.words[i].params)){
+      if(doc.lang == doc.words[i].lang && shouldSendPrevious(daysbetween(doc.words[i].lastseen, now), doc.words[i].count, doc.words[i].params)){
         var toSend = doc.words[i];
         toSend.count += 1;
         toSend.lastseen = new Date();
